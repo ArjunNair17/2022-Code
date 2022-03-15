@@ -52,6 +52,13 @@ public class RobotContainer {
   private final XboxController m_operatorController =
       new XboxController(ControllerConstants.kOperatorPort);
 
+  private Trajectory trajectory =
+      TrajectoryGenerator.generateTrajectory(
+          new Pose2d(0, 0, new Rotation2d(0)),
+          List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+          new Pose2d(3, 0, new Rotation2d(0.0)),
+          m_drivetrain.getTrajectoryConfig());
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(
@@ -66,6 +73,9 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
+  public void setTrajectory(Trajectory trajectory) {
+    this.trajectory = trajectory;
+  }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -146,22 +156,13 @@ public class RobotContainer {
             m_indexer);
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
+
     // An ExampleCommand will run in autonomous
 
     // Trajectory traj = TrajectoryGenerator.generateTrajectory(Arrays.asList(new Pose2d(), new
     // Pose2d(1,0, new Rotation2d())), setup);
-    Trajectory traj =
-        TrajectoryGenerator.generateTrajectory(
-            new Pose2d(0, 0, new Rotation2d(0)),
-            List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-            new Pose2d(3, 0, new Rotation2d(0.0)),
-            m_drivetrain.getTrajectoryConfig());
-    return m_drivetrain.getTrajectoryFollowerCommand(traj);
+
+    return m_drivetrain.getTrajectoryFollowerCommand(this.trajectory);
   }
 }
