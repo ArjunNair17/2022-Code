@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -20,6 +25,7 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import java.util.List;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -46,6 +52,13 @@ public class RobotContainer {
   private final XboxController m_operatorController =
       new XboxController(ControllerConstants.kOperatorPort);
 
+  private Trajectory trajectory =
+      TrajectoryGenerator.generateTrajectory(
+          new Pose2d(0, 0, new Rotation2d(0)),
+          List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+          new Pose2d(3, 0, new Rotation2d(0.0)),
+          m_drivetrain.getTrajectoryConfig());
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(
@@ -60,6 +73,9 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
+  public void setTrajectory(Trajectory trajectory) {
+    this.trajectory = trajectory;
+  }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -140,13 +156,13 @@ public class RobotContainer {
             m_indexer);
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
+
     // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+
+    // Trajectory traj = TrajectoryGenerator.generateTrajectory(Arrays.asList(new Pose2d(), new
+    // Pose2d(1,0, new Rotation2d())), setup);
+
+    return m_drivetrain.getTrajectoryFollowerCommand(this.trajectory);
   }
 }
